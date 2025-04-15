@@ -2,4 +2,4 @@
 *.pdb
 *.ppm
 *.o
-*.vscode
+vscode/
