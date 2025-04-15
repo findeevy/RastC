@@ -2,9 +2,8 @@
 #define FRAMEBUFFER
 
 #include <stdint.h>
-
-#define WIDTH 640
-#define HEIGHT 480
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
   uint8_t r;
@@ -13,10 +12,14 @@ typedef struct {
 } FrameBufferColor;
 
 typedef struct {
-  FrameBufferColor pixel[HEIGHT][WIDTH];
+  FrameBufferColor** pixel;
+  int height;
+  int width;
 } FrameBuffer;
 
-FrameBufferColor New(uint8_t r, uint8_t g, uint8_t b);
+FrameBuffer* NewBuffer(int width, int height);
+
+FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b);
 
 void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 
