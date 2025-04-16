@@ -21,6 +21,8 @@ FrameBuffer* NewBuffer(int width, int height);
 
 FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b);
 
+void WriteToPPM(FrameBuffer* fb, const char *filename);
+
 void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 
 #endif
