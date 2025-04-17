@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-SRCS = src/main.c src/framebuffer.c src/tools.c
+SRCS = src/main.c src/renderer.c src/tools.c
 OBJS = $(SRCS:.c=.o)
 
 TARGET = RastC
