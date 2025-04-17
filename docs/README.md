@@ -10,4 +10,4 @@ A custom software rasterizer written in pure C.
 ![A wireframe output from RastC.](wire_out.png "Render")
 
 ## Credit:
-[Utah Teapot 3D Mode] (https://users.cs.utah.edu/~dejohnso/models/teapot.html)
+[Utah Teapot 3D Mode](https://users.cs.utah.edu/~dejohnso/models/teapot.html)
