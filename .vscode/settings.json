@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "framebuffer.h": "c",
-        "stdbool.h": "c",
-        "renderer.h": "c",
-        "stdio.h": "c"
-    }
-}
