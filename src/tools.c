@@ -33,6 +33,7 @@ Model ReadOBJ(const char* name){
 
   char line[256];
   int vert_count = 0;
+  int face_count = 0;
   Model mdl = NewModel();
 
   while (fgets(line, sizeof(line), file)) {
@@ -42,6 +43,18 @@ Model ReadOBJ(const char* name){
       sscanf(line + 2, "%f %f %f", &v.x, &v.y, &v.z);
       mdl.verts = realloc(mdl.verts, vert_count * sizeof(Vector3f));
       mdl.verts[vert_count - 1] = v;
+    }
+    else if (strncmp(line, "f ", 2) == 0){
+      char* face_chunk = strtok(line, " ");;
+      while (face_chunk != NULL) {
+        face_chunk = strtok(NULL, " ");
+        face_count += 1;
+        Vector3i f;
+        sscanf(face_chunk, "%d/%d/%d", &f.x, &f.y, &f.z);
+        mdl.faces = realloc(mdl.faces, face_count * sizeof(Vector3i));
+        mdl.faces[face_count - 1] = f;
+        //printf("x: %d y: %d z: %d\n", f.x, f.y, f.z);
+      }
     }
   }
   return mdl;
