@@ -48,13 +48,13 @@ void WriteToPPM(FrameBuffer* fb, const char *filename){
 void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color){
   bool direction = false; 
   if (abs(x0-x1)<abs(y0-y1)){
-    Tswap(&x0, &y0); 
-    Tswap(&x1, &y1); 
+    Swap(&x0, &y0); 
+    Swap(&x1, &y1); 
     direction = true; 
   } 
   if (x0>x1){
-    Tswap(&x0, &x1); 
-    Tswap(&y0, &y1); 
+    Swap(&x0, &x1); 
+    Swap(&y0, &y1); 
   } 
   for (int x=x0; x<=x1; x++) { 
     float t = (x-x0)/(float)(x1-x0); 

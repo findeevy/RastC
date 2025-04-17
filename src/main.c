@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "framebuffer.h"
+#include "tools.h"
 
 int main(){
   FrameBuffer *fb = NewBuffer(640, 480);
@@ -14,5 +15,6 @@ int main(){
   //int x0, int y0, int x1, int y1,
   Line(20, 200, 100, 100, fb, blue);
   WriteToPPM(fb, "out.ppm");
+  ReadOBJ("res/utah_teapot.obj");
   return 0;
 }
