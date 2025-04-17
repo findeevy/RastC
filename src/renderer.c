@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 Vector3f NewVector3f(float x, float y, float z){
   Vector3f vector3;
@@ -43,10 +44,6 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color){
   if(x >= 0 && y >= 0 && x < fb -> width && y < fb -> height ){
     fb -> pixel[x][y] = color;
   }
-  printf("S");
-  /*else{
-    printf("OUT OF BOUNDS!");
-  }*/
 }
 
 void WriteToPPM(FrameBuffer* fb, const char *filename){
@@ -84,7 +81,6 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
       Set(x, y, fb, color); 
     } 
   }
-  printf("L");
 }
 
 Model* NewModel(){
@@ -96,48 +92,45 @@ Model* NewModel(){
   //Note that we will have dynamic memory allocation to match the amount of verts/faces, so we set them to null.
   mdl -> verts = NULL;
   mdl -> faces = NULL;
+  mdl -> nfaces = 0;
+  mdl -> nverts = 0;
   return mdl;
   
 }
 
-Model* ReadOBJ(const char* name){
-  FILE* file = fopen(name, "r");
-  if (!file) {
-    perror("Could not open OBJ file");
-    exit(1);
-  }
-
-  char line[256];
-  int vert_count = 0;
-  int face_count = 0;
-  Model *mdl = NewModel();
-
-  while (fgets(line, sizeof(line), file)) {
-    if (strncmp(line, "v ", 2) == 0) {
-      vert_count += 1;
-      Vector3f v;
-      sscanf(line + 2, "%f %f %f", &v.x, &v.y, &v.z);
-      mdl -> verts = realloc(mdl -> verts, vert_count * sizeof(Vector3f));
-      mdl -> verts[vert_count - 1] = v;
+Model* ReadOBJ(const char* name) {
+    FILE* file = fopen(name, "r");
+    if (!file) {
+        perror("Could not open OBJ file");
+        exit(1);
     }
-    else if (strncmp(line, "f ", 2) == 0){
-      char* face_chunk = strtok(line, " ");;
-      while (face_chunk != NULL) {
-        face_chunk = strtok(NULL, " ");
-        face_count += 1;
-        Vector3i f;
-        sscanf(face_chunk, "%d/%d/%d", &f.x, &f.y, &f.z);
-        mdl -> faces = realloc(mdl -> faces, face_count * sizeof(Vector3i));
-        mdl -> faces[face_count - 1] = f;
-        //printf("x: %d y: %d z: %d\n", f.x, f.y, f.z);
-      }
+
+    char line[256];
+    Model *mdl = NewModel();
+
+    while (fgets(line, sizeof(line), file)) {
+        if (strncmp(line, "v ", 2) == 0) {
+            Vector3f v;
+            sscanf(line + 2, "%f %f %f", &v.x, &v.y, &v.z);
+            mdl->nverts++;
+            mdl->verts = realloc(mdl->verts, mdl->nverts * sizeof(Vector3f));
+            mdl->verts[mdl->nverts - 1] = v;
+        } 
+	else if (strncmp(line, "f ", 2) == 0) {
+            char* face_chunk = strtok(line + 2, " ");
+            while (face_chunk != NULL) {
+                Vector3i f = {0, 0, 0};
+                sscanf(face_chunk, "%d/%d/%d", &f.x, &f.y, &f.z);
+                mdl->nfaces++;
+                mdl->faces = realloc(mdl->faces, mdl->nfaces * sizeof(Vector3i));
+                mdl->faces[mdl->nfaces - 1] = f;
+                face_chunk = strtok(NULL, " ");
+            }
+        }
     }
-  }
 
-  mdl -> nfaces = face_count;
-  mdl -> nverts = vert_count;
-
-  return mdl;
+    fclose(file);
+    return mdl;
 }
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
