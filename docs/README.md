@@ -2,6 +2,7 @@
 A custom software rasterizer written in pure C.
 
 ## Features:
+-OBJ input.\
 -PPM output.
 
 ## Sample Output:
