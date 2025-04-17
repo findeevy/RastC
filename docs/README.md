@@ -7,4 +7,4 @@ A custom software rasterizer written in pure C.
 -PPM output.
 
 ## Sample Output:
-![A gradient output from RastC.](out.png "Render")
+![A wireframe output from RastC.](wire_out.png "Render")
