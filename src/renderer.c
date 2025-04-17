@@ -86,8 +86,8 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
 Model* NewModel(){
   Model *mdl = malloc(sizeof(Model));
     if (!mdl) {
-        fprintf(stderr, "Memory allocation failed for Model.\n");
-        return NULL;
+      fprintf(stderr, "Memory allocation failed for Model.\n");
+      return NULL;
     }
   //Note that we will have dynamic memory allocation to match the amount of verts/faces, so we set them to null.
   mdl -> verts = NULL;
@@ -101,36 +101,70 @@ Model* NewModel(){
 Model* ReadOBJ(const char* name) {
     FILE* file = fopen(name, "r");
     if (!file) {
-        perror("Could not open OBJ file");
-        exit(1);
+      perror("Could not open OBJ file");
+      exit(1);
     }
 
     char line[256];
     Model *mdl = NewModel();
 
     while (fgets(line, sizeof(line), file)) {
-        if (strncmp(line, "v ", 2) == 0) {
-            Vector3f v;
-            sscanf(line + 2, "%f %f %f", &v.x, &v.y, &v.z);
-            mdl->nverts++;
-            mdl->verts = realloc(mdl->verts, mdl->nverts * sizeof(Vector3f));
-            mdl->verts[mdl->nverts - 1] = v;
-        } 
-	else if (strncmp(line, "f ", 2) == 0) {
-            char* face_chunk = strtok(line + 2, " ");
-            while (face_chunk != NULL) {
-                Vector3i f = {0, 0, 0};
-                sscanf(face_chunk, "%d/%d/%d", &f.x, &f.y, &f.z);
-                mdl->nfaces++;
-                mdl->faces = realloc(mdl->faces, mdl->nfaces * sizeof(Vector3i));
-                mdl->faces[mdl->nfaces - 1] = f;
-                face_chunk = strtok(NULL, " ");
+      if (strncmp(line, "v ", 2) == 0) {
+        Vector3f v;
+        sscanf(line + 2, "%f %f %f", &v.x, &v.y, &v.z);
+        mdl->nverts++;
+        mdl->verts = realloc(mdl->verts, mdl->nverts * sizeof(Vector3f));
+        mdl->verts[mdl->nverts - 1] = v;
+      } 
+      else if (strncmp(line, "f ", 2) == 0) {
+        Vector3i f = { -1, -1, -1 };
+        int idx = 0;
+        char* face_chunk = strtok(line + 2, " ");
+        while (face_chunk != NULL && idx < 3) {
+          int v;
+          if (sscanf(face_chunk, "%d/%*d/%*d", &v) == 1 ||
+            sscanf(face_chunk, "%d//%*d", &v) == 1 ||
+            sscanf(face_chunk, "%d", &v) == 1) {
+            switch(idx) {
+              case 0: f.x = v - 1; break;
+              case 1: f.y = v - 1; break;
+              case 2: f.z = v - 1; break;
             }
+            idx++;
+          } 
+          else {
+            fprintf(stderr, "Failed to parse face chunk: %s\n", face_chunk);
+          }
+          face_chunk = strtok(NULL, " ");
         }
+        if (idx == 3) {
+          mdl->nfaces++;
+          mdl->faces = realloc(mdl->faces, mdl->nfaces * sizeof(Vector3i));
+          if (!mdl->faces) {
+            perror("Failed to realloc faces array");
+            exit(1);
+          }
+          mdl->faces[mdl->nfaces - 1] = f;
+        } 
+        else {
+          fprintf(stderr, "Face line with incorrect vertex count: %s", line);
+        }
+      }
     }
 
     fclose(file);
     return mdl;
+}
+
+void FlipFramebufferVertically(FrameBuffer* fb) {
+    for (int x = 0; x < fb->width; x++) {
+        for (int y = 0; y < fb->height / 2; y++) {
+            int opposite_y = fb->height - 1 - y;
+            FrameBufferColor temp = fb->pixel[x][y];
+            fb->pixel[x][y] = fb->pixel[x][opposite_y];
+            fb->pixel[x][opposite_y] = temp;
+        }
+    }
 }
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
@@ -142,10 +176,10 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       Vector3f v0 = mdl->verts[vert_arr[j]]; 
       Vector3f v1 = mdl->verts[vert_arr[(j+1)%3]]; 
       //printf("%f %f %f %f\n", v0.x, v1.x, v0.y, v1.y);
-      int x0 = ((v0.x+1.)*(fb->width))/20.; 
-      int y0 = ((v0.y+1.)*(fb->height))/20.; 
-      int x1 = ((v1.x+1.)*(fb->width))/20.; 
-      int y1 = ((v1.y+1.)*(fb->height))/20.;
+      int x0 = ((v0.x+mdl->transform.x)*(fb->width))/7; 
+      int y0 = ((v0.y+mdl->transform.y)*(fb->height))/7; 
+      int x1 = ((v1.x+mdl->transform.x)*(fb->width))/7; 
+      int y1 = ((v1.y+mdl->transform.y)*(fb->height))/7;
       //printf("%d %d %d %d\n", x0, x1, y0, y1);
       printf("RWF");
       Line(x0, y0, x1, y1, fb, color); 

@@ -21,6 +21,7 @@ typedef struct Vector3f{
 typedef struct Model{
   Vector3f* verts;
   Vector3i* faces;
+  Vector3f transform;
   int nverts;
   int nfaces;
 } Model;
@@ -52,6 +53,8 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color);
 
 Model* NewModel();
+
+void FlipFramebufferVertically(FrameBuffer* fb);
 
 Model* ReadOBJ(const char* file);
 
