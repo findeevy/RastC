@@ -15,8 +15,8 @@ int main(){
   }
 
   Model *tpot = ReadOBJ("res/utah_teapot.obj");
-  tpot -> transform.x = 3.6;
-  tpot -> transform.y = 2.0;
+  tpot -> transform.x = 23.6;
+  tpot -> transform.y = 22.0;
   RenderWireframe(tpot, fb, blue);
   FlipFramebufferVertically(fb);
   WriteToPPM(fb, "out.ppm");

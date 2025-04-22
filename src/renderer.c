@@ -18,6 +18,12 @@ Vector3i NewVector3i(int x, int y, int z){
   return vector3;
 }
 
+Vector2i NewVector2i(int x, int y){
+  Vector2i vector2;
+  vector2.x = x, vector2.y = y;
+  return vector2;
+}
+
 //Function to set RGB value in the framebuffer.
 FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b){
   FrameBufferColor color;
@@ -167,6 +173,20 @@ void FlipFramebufferVertically(FrameBuffer* fb) {
     }
 }
 
+//Compute the cross product of two Vector3s.
+Vector3f Cross(Vector3f a, Vector3f b){
+  return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.z);
+}
+
+//Computes for "point" in a give triangle.
+Vector3f Barycentric(Vector2i *points, Vector2i point){
+  Vector3f temp = Cross(NewVector3f(points[2].x-points[0].x, points[1].x-points[0].x, points[0].x-point.x), NewVector3f(points[2].y-points[0].y, points[1].y-points[0].y, points[0].y-point.y));
+  if (abs(temp.z < 1)){
+    return NewVector3f(-1.0, 1.0, 1.0);
+  }
+  return NewVector3f(1.0-(temp.x+temp.y)/temp.z, temp.y/temp.z, temp.x/temp.z);
+}
+
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) { 
     Vector3i face = mdl -> faces[i];
@@ -176,10 +196,10 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       Vector3f v0 = mdl->verts[vert_arr[j]]; 
       Vector3f v1 = mdl->verts[vert_arr[(j+1)%3]]; 
       //printf("%f %f %f %f\n", v0.x, v1.x, v0.y, v1.y);
-      int x0 = ((v0.x+mdl->transform.x)*(fb->width))/7; 
-      int y0 = ((v0.y+mdl->transform.y)*(fb->height))/7; 
-      int x1 = ((v1.x+mdl->transform.x)*(fb->width))/7; 
-      int y1 = ((v1.y+mdl->transform.y)*(fb->height))/7;
+      int x0 = ((v0.x+mdl->transform.x)*(fb->width))/40; 
+      int y0 = ((v0.y+mdl->transform.y)*(fb->height))/40; 
+      int x1 = ((v1.x+mdl->transform.x)*(fb->width))/40; 
+      int y1 = ((v1.y+mdl->transform.y)*(fb->height))/40;
       //printf("%d %d %d %d\n", x0, x1, y0, y1);
       printf("RWF");
       Line(x0, y0, x1, y1, fb, color); 
