@@ -54,13 +54,13 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color){
 
 //Compute the cross product of two Vector3s.
 Vector3f Cross(Vector3f a, Vector3f b){
-  return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.z);
+  return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
 //Computes for "point" in a give triangle.
 Vector3f Barycentric(Vector2i *points, Vector2i point){
   Vector3f temp = Cross(NewVector3f(points[2].x-points[0].x, points[1].x-points[0].x, points[0].x-point.x), NewVector3f(points[2].y-points[0].y, points[1].y-points[0].y, points[0].y-point.y));
-  if (abs(temp.z < 1)){
+  if (abs(temp.z) < 1){
     return NewVector3f(-1.0, 1.0, 1.0);
   }
   return NewVector3f(1.0-(temp.x+temp.y)/temp.z, temp.y/temp.z, temp.x/temp.z);
@@ -120,8 +120,8 @@ void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color){
   for (point.x=bboxmin.x; point.x<=bboxmax.x; point.x++){
     for (point.y=bboxmin.y; point.y<=bboxmax.y; point.y++){
       Vector3f barycentric_test = Barycentric(points, point);
-      if (barycentric_test.x<0 || barycentric_test.y<0 || barycentric_test.z<0){ 
-        continue;
+      if (barycentric_test.x<0 || barycentric_test.y<0 || barycentric_test.z<0){
+	continue;
       }
       Set(point.x, point.y, fb, color); 
     }
@@ -216,6 +216,7 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) { 
     Vector3i face = mdl -> faces[i];
     int vert_arr[3] = {face.x, face.y, face.z};
+    printf("%d, %d, %d\n", face.x, face.y, face.z);
     //printf("%d %d %d\n", vert_arr[0], vert_arr[1], vert_arr[2]);
     for (int j=0; j<3; j++) { 
       Vector3f v0 = mdl->verts[vert_arr[j]]; 
@@ -226,21 +227,19 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       int x1 = ((v1.x+mdl->transform.x)*(fb->width))/40; 
       int y1 = ((v1.y+mdl->transform.y)*(fb->height))/40;
       //printf("%d %d %d %d\n", x0, x1, y0, y1);
-      printf("RWF");
       Line(x0, y0, x1, y1, fb, color); 
     }
-    printf("%f\n", (float)i/(mdl -> nfaces));
   }
 }
 
-void RenderPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
     Vector2i coord_arr[3];
     int vert_arr[3] = {face.x, face.y, face.z};
     for (int j=0; j<3; j++) {
       Vector3f world_space = mdl -> verts[vert_arr[j]];
-      coord_arr[j] = NewVector2i((world_space.x+1.0)*fb -> width/2.0, (world_space.y+1.0)*fb -> height/2.0);
+      coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
     }
     Triangle(coord_arr, fb, color);
   }

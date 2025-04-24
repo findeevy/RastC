@@ -75,5 +75,5 @@ Model* ReadOBJ(const char* file);
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 
-void RenderPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 #endif
