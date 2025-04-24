@@ -52,6 +52,21 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
+//Compute the cross product of two Vector3s.
+Vector3f Cross(Vector3f a, Vector3f b){
+  return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.z);
+}
+
+//Computes for "point" in a give triangle.
+Vector3f Barycentric(Vector2i *points, Vector2i point){
+  Vector3f temp = Cross(NewVector3f(points[2].x-points[0].x, points[1].x-points[0].x, points[0].x-point.x), NewVector3f(points[2].y-points[0].y, points[1].y-points[0].y, points[0].y-point.y));
+  if (abs(temp.z < 1)){
+    return NewVector3f(-1.0, 1.0, 1.0);
+  }
+  return NewVector3f(1.0-(temp.x+temp.y)/temp.z, temp.y/temp.z, temp.x/temp.z);
+}
+
+
 void WriteToPPM(FrameBuffer* fb, const char *filename){
   FILE *fp = fopen(filename, "wb");
   fprintf(fp, "P6\n%d %d\n255\n", fb->width, fb->height);
@@ -86,6 +101,30 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
     else{ 
       Set(x, y, fb, color); 
     } 
+  }
+}
+
+void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color){
+  Vector2i bboxmin = NewVector2i(fb -> width - 1, fb -> height - 1);
+  Vector2i bboxmax = NewVector2i(0, 0);
+  Vector2i clamp = NewVector2i(fb -> width - 1, fb -> height - 1);
+
+  for (int i=0; i<3; i++){
+    bboxmin.x = Max(0, Min(bboxmin.x, points[i].x));
+    bboxmin.y = Max(0, Min(bboxmin.y, points[i].y));
+    bboxmax.x = Min(clamp.x, Max(bboxmax.x, points[i].x));
+    bboxmax.y = Min(clamp.y, Max(bboxmax.y, points[i].y));
+  }
+
+  Vector2i point;
+  for (point.x=bboxmin.x; point.x<=bboxmax.x; point.x++){
+    for (point.y=bboxmin.y; point.y<=bboxmax.y; point.y++){
+      Vector3f barycentric_test = Barycentric(points, point);
+      if (barycentric_test.x<0 || barycentric_test.y<0 || barycentric_test.z<0){ 
+        continue;
+      }
+      Set(point.x, point.y, fb, color); 
+    }
   }
 }
 
@@ -173,20 +212,6 @@ void FlipFramebufferVertically(FrameBuffer* fb) {
     }
 }
 
-//Compute the cross product of two Vector3s.
-Vector3f Cross(Vector3f a, Vector3f b){
-  return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.z);
-}
-
-//Computes for "point" in a give triangle.
-Vector3f Barycentric(Vector2i *points, Vector2i point){
-  Vector3f temp = Cross(NewVector3f(points[2].x-points[0].x, points[1].x-points[0].x, points[0].x-point.x), NewVector3f(points[2].y-points[0].y, points[1].y-points[0].y, points[0].y-point.y));
-  if (abs(temp.z < 1)){
-    return NewVector3f(-1.0, 1.0, 1.0);
-  }
-  return NewVector3f(1.0-(temp.x+temp.y)/temp.z, temp.y/temp.z, temp.x/temp.z);
-}
-
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) { 
     Vector3i face = mdl -> faces[i];
@@ -205,5 +230,18 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       Line(x0, y0, x1, y1, fb, color); 
     }
     printf("%f\n", (float)i/(mdl -> nfaces));
+  }
+}
+
+void RenderPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
+  for (int i=0; i < mdl -> nfaces; i++) {
+    Vector3i face = mdl -> faces[i];
+    Vector2i coord_arr[3];
+    int vert_arr[3] = {face.x, face.y, face.z};
+    for (int j=0; j<3; j++) {
+      Vector3f world_space = mdl -> verts[vert_arr[j]];
+      coord_arr[j] = NewVector2i((world_space.x+1.0)*fb -> width/2.0, (world_space.y+1.0)*fb -> height/2.0);
+    }
+    Triangle(coord_arr, fb, color);
   }
 }

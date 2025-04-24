@@ -60,6 +60,8 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 
 void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color);
 
+void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color);
+
 Model* NewModel();
 
 Vector3f Cross(Vector3f a, Vector3f b);
@@ -73,4 +75,5 @@ Model* ReadOBJ(const char* file);
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 
+void RenderPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 #endif
