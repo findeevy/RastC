@@ -7,7 +7,7 @@ A custom software rasterizer written in pure C.
 -PPM output.
 
 ## Compilation:
-Install [GCC](https://gcc.gnu.org/) and then run "make" once you are in the project folder.
+Install [GCC](https://gcc.gnu.org/) and then run "make" once you are in the project folder. Please note, this program currently supports on triangulated .obj files.
 
 ## Project Structure:
 src/ <- This is the folder with the source code.\
@@ -17,7 +17,10 @@ out.ppm <- Will be the output of the renderer, easily viewable in [GIMP](https:/
 Makefile <- This is the script used for compilation.
 
 ## Sample Output:
+Wireframe Mode\
 ![A wireframe output from RastC.](wire_out.png "Render")
+Unlit Mode\
+![A unlit polygonal output from RastC.](unlit_out.png "Render")
 
 ## 3D Model Credit:
 [Utah Teapot 3D Model](https://users.cs.utah.edu/~dejohnso/models/teapot.html)
