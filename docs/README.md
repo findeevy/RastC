@@ -8,7 +8,7 @@ A custom software rasterizer written in pure C.
 -PPM output.
 
 ## Compilation:
-Install [GCC](https://gcc.gnu.org/) and then run "make" once you are in the project folder. Please note, this program currently supports on triangulated .obj files.
+Install [GCC](https://gcc.gnu.org/) and then run "make" once you are in the project folder. Please note, this program currently supports only triangulated .obj files.
 
 ## Project Structure:
 src/ <- This is the folder with the source code.\
