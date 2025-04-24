@@ -3,7 +3,7 @@ A custom software rasterizer written in pure C.
 
 ## Features:
 -Wireframe rendering mode.\
--Unlit polygonal rendering mode.\ 
+-Unlit polygonal rendering mode.\
 -OBJ input.\
 -PPM output.
 
