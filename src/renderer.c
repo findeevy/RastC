@@ -24,6 +24,13 @@ Vector2i NewVector2i(int x, int y){
   return vector2;
 }
 
+Light NewLight(Vector3f direction, float intensity){
+  Light lit;
+  lit.direction = direction;
+  lit.intensity = intensity;
+  return lit;
+}
+
 //Function to set RGB value in the framebuffer.
 FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b){
   FrameBufferColor color;

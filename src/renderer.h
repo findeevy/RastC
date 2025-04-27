@@ -32,6 +32,11 @@ typedef struct Model{
   int nfaces;
 } Model;
 
+typedef struct Light{
+  Vector3f direction;
+  float intensity;
+} Light;
+
 typedef struct FrameBufferColor{
   uint8_t r;
   uint8_t g;
@@ -43,6 +48,8 @@ typedef struct FrameBuffer{
   int height;
   int width;
 } FrameBuffer;
+
+Light NewLight(Vector3f direction, float intensity);
 
 Vector3f NewVector3f(float x, float y, float z);
 
