@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 Vector3f NewVector3f(float x, float y, float z){
   Vector3f vector3;
@@ -59,9 +60,30 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
+float Magnitude(Vector3f a){
+  return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+}
+
+Vector3f Vector3fSub(Vector3f a, Vector3f b){
+  return NewVector3f(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+float Vector3fMul(Vector3f a, Vector3f b){
+  return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 //Compute the cross product of two Vector3s.
 Vector3f Cross(Vector3f a, Vector3f b){
   return NewVector3f(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+}
+
+
+Vector3f Normalize(Vector3f a){
+  float magnitude = Magnitude(a);
+  if (magnitude == 0.0){
+    return NewVector3f(0.0, 0.0, 0.0);
+  }
+  return NewVector3f(a.x/magnitude, a.y/magnitude, a.z/magnitude);
 }
 
 //Computes for "point" in a give triangle.
@@ -249,5 +271,27 @@ void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
     }
     Triangle(coord_arr, fb, color);
+  }
+}
+
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, FrameBufferColor color){
+  for (int i=0; i < mdl -> nfaces; i++) {
+    Vector3i face = mdl -> faces[i];
+    Vector2i coord_arr[3];
+    Vector3f world_arr[3];
+    int vert_arr[3] = {face.x, face.y, face.z};
+    for (int j=0; j<3; j++) {
+      Vector3f world_space = mdl -> verts[vert_arr[j]];
+      world_arr[j] = world_space;
+      coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
+    }
+    Vector3f normal = Normalize(Cross(Vector3fSub(world_arr[2], world_arr[0]), Vector3fSub(world_arr[1], world_arr[0])));
+    //printf("%f, %f, %f\n", normal.x, normal.y, normal.z);
+    float intensity = Vector3fMul(normal, light.direction) * light.intensity;
+    printf("%f", intensity);
+    if(intensity > 0){
+      FrameBufferColor lit_color = NewColor(color.r*intensity, color.g*intensity, color.b*intensity);
+      Triangle(coord_arr, fb, lit_color);
+    }
   }
 }

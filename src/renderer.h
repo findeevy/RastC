@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct Vector2i{
   int x;
@@ -71,7 +72,15 @@ void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color);
 
 Model* NewModel();
 
+Vector3f Vector3fSub(Vector3f a, Vector3f b);
+
+float Vector3fMul(Vector3f a, Vector3f b);
+
 Vector3f Cross(Vector3f a, Vector3f b);
+
+float Magnitude(Vector3f a);
+
+Vector3f Normalize(Vector3f a);
 
 //Computes for "point" in a give triangle.
 Vector3f Barycentric(Vector2i *points, Vector2i point);
@@ -83,4 +92,7 @@ Model* ReadOBJ(const char* file);
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 
 void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
+
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, FrameBufferColor color);
+
 #endif
