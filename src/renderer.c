@@ -153,11 +153,12 @@ void Triangle(Vector2i* points, FrameBuffer* fb, float* zb, FrameBufferColor col
 	continue;
       }
       point.z = 0;
-      for (int i=0; i<3; i++) {
-        point.z += points[i].z*barycentric_test.x;
-      }
-      if (zb[int(point.x+point.y*width)]<P.z) {
-        zb[int(point.x+point.y*width)] = P.z;
+      point.z += Vector3fMul(points[0].z*barycentric_test.x);
+      point.z += Vector3fMul(points[1].z*barycentric_test.y);
+      point.z += Vector3fMul(points[2].z*barycentric_test.z);
+
+      if (zb[(int)(point.x+point.y*width)] < point.z) {
+        zb[(int)(point.x+point.y*width)] = point.z;
         Set(point.x, point.y, fb, color);
       }
     }

@@ -12,7 +12,7 @@ int main(){
   FrameBufferColor fbc = NewColor(0, 0, 0);
   FrameBufferColor red = NewColor(255, 0, 0);
 
-  int *zbuffer = malloc(width * height * sizeof(float));
+  int *zb = malloc(width * height * sizeof(int));
   
   for (int x = 0; x < fb -> width; ++x){
     for (int y = 0; y < fb -> height; ++y){
@@ -25,8 +25,8 @@ int main(){
   tpot -> transform.x = 3.5;
   tpot -> transform.y = 2.0;
   printf("Faces: %d\nVerts: %d\n", tpot -> nfaces, tpot -> nverts);
-  RenderLitPolygon(tpot, light, fb, zbuffer, red);
-  free(zbuffer);
+  RenderLitPolygon(tpot, light, fb, zb, red);
+  free(zb);
 
   FlipFramebufferVertically(fb);
   WriteToPPM(fb, "out.ppm");
