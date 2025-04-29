@@ -4,6 +4,8 @@ A custom software rasterizer written in pure C.
 ## Features:
 -Wireframe rendering mode.\
 -Unlit polygonal rendering mode.\
+-Shaded polygonal rendering mode.\
+-Depth buffer.\
 -OBJ input.\
 -PPM output.
 
@@ -18,6 +20,8 @@ out.ppm <- Will be the output of the renderer, easily viewable in [GIMP](https:/
 Makefile <- This is the script used for compilation.
 
 ## Sample Output:
+Shaded Mode\
+![A lit polygonal output from RastC.](lit_out.png "Render")
 Wireframe Mode\
 ![A wireframe output from RastC.](wire_out.png "Render")\
 Unlit Mode\

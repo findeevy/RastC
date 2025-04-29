@@ -10,7 +10,7 @@ int main(){
   static const int width = 720;
   FrameBuffer *fb = NewBuffer(height, width);
   FrameBufferColor fbc = NewColor(0, 0, 0);
-  FrameBufferColor red = NewColor(255, 0, 0);
+  FrameBufferColor green = NewColor(0, 255, 0);
 
   float *zb = malloc(width * height * sizeof(float));
   
@@ -25,7 +25,7 @@ int main(){
   tpot -> transform.x = 3.5;
   tpot -> transform.y = 2.0;
   printf("Faces: %d\nVerts: %d\n", tpot -> nfaces, tpot -> nverts);
-  RenderLitPolygon(tpot, light, fb, zb, red);
+  RenderLitPolygon(tpot, light, fb, zb, green);
   free(zb);
 
   FlipFramebufferVertically(fb);
