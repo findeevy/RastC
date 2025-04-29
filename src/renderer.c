@@ -133,7 +133,7 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
   }
 }
 
-void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color){
+void Triangle(Vector2i* points, FrameBuffer* fb, float* zb, FrameBufferColor color){
   Vector2i bboxmin = NewVector2i(fb -> width - 1, fb -> height - 1);
   Vector2i bboxmax = NewVector2i(0, 0);
   Vector2i clamp = NewVector2i(fb -> width - 1, fb -> height - 1);
@@ -145,14 +145,21 @@ void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color){
     bboxmax.y = Min(clamp.y, Max(bboxmax.y, points[i].y));
   }
 
-  Vector2i point;
+  Vector3f point;
   for (point.x=bboxmin.x; point.x<=bboxmax.x; point.x++){
     for (point.y=bboxmin.y; point.y<=bboxmax.y; point.y++){
       Vector3f barycentric_test = Barycentric(points, point);
       if (barycentric_test.x<0 || barycentric_test.y<0 || barycentric_test.z<0){
 	continue;
       }
-      Set(point.x, point.y, fb, color); 
+      point.z = 0;
+      for (int i=0; i<3; i++) {
+        point.z += points[i].z*barycentric_test.x;
+      }
+      if (zb[int(point.x+point.y*width)]<P.z) {
+        zb[int(point.x+point.y*width)] = P.z;
+        Set(point.x, point.y, fb, color);
+      }
     }
   }
 }
@@ -261,7 +268,7 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
     Vector2i coord_arr[3];
@@ -270,11 +277,11 @@ void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
       Vector3f world_space = mdl -> verts[vert_arr[j]];
       coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
     }
-    Triangle(coord_arr, fb, color);
+    Triangle(coord_arr, fb, zb, color);
   }
 }
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, FrameBufferColor color){
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
     Vector2i coord_arr[3];
@@ -291,7 +298,7 @@ void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, FrameBufferColor
     printf("%f", intensity);
     if(intensity > 0){
       FrameBufferColor lit_color = NewColor(color.r*intensity, color.g*intensity, color.b*intensity);
-      Triangle(coord_arr, fb, lit_color);
+      Triangle(coord_arr, fb, zb, lit_color);
     }
   }
 }
