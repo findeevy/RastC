@@ -21,7 +21,7 @@ Makefile <- This is the script used for compilation.
 
 ## Sample Output:
 Shaded Mode\
-![A lit polygonal output from RastC.](lit_out.png "Render")
+![A lit polygonal output from RastC.](lit_out.png "Render")\
 Wireframe Mode\
 ![A wireframe output from RastC.](wire_out.png "Render")\
 Unlit Mode\
