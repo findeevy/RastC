@@ -19,10 +19,11 @@ typedef struct Vector3i{
   int z;
 } Vector3i;
 
-typedef struct Vector3f{
-  float x;
-  float y;
-  float z;
+typedef union Vector3f{
+    struct {
+        float x, y, z;
+    };
+    float array[3];
 } Vector3f;
 
 typedef struct Model{
@@ -68,7 +69,7 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 
 void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color);
 
-void Triangle(Vector2i* points, FrameBuffer* fb, FrameBufferColor color);
+void Triangle(Vector2i* points, FrameBuffer* fb, int* zb, FrameBufferColor color);
 
 Model* NewModel();
 

@@ -133,7 +133,7 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
   }
 }
 
-void Triangle(Vector2i* points, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void Triangle(Vector2i* points, FrameBuffer* fb, int* zb, FrameBufferColor color){
   Vector2i bboxmin = NewVector2i(fb -> width - 1, fb -> height - 1);
   Vector2i bboxmax = NewVector2i(0, 0);
   Vector2i clamp = NewVector2i(fb -> width - 1, fb -> height - 1);
@@ -153,12 +153,12 @@ void Triangle(Vector2i* points, FrameBuffer* fb, float* zb, FrameBufferColor col
 	continue;
       }
       point.z = 0;
-      point.z += Vector3fMul(points[0].z*barycentric_test.x);
-      point.z += Vector3fMul(points[1].z*barycentric_test.y);
-      point.z += Vector3fMul(points[2].z*barycentric_test.z);
+      point.z += Vector3fMul(points[0].z, barycentric_test.x);
+      point.z += Vector3fMul(points[1].z, barycentric_test.y);
+      point.z += Vector3fMul(points[2].z, barycentric_test.z);
 
-      if (zb[(int)(point.x+point.y*width)] < point.z) {
-        zb[(int)(point.x+point.y*width)] = point.z;
+      if (zb[(int)(point.x+point.y*fb->width)] < point.z) {
+        zb[(int)(point.x+point.y*fb->width)] = point.z;
         Set(point.x, point.y, fb, color);
       }
     }
@@ -269,7 +269,7 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, int* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
     Vector2i coord_arr[3];
@@ -282,7 +282,7 @@ void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor
   }
 }
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, int* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
     Vector2i coord_arr[3];
