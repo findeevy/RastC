@@ -12,7 +12,7 @@ int main(){
   FrameBufferColor fbc = NewColor(0, 0, 0);
   FrameBufferColor red = NewColor(255, 0, 0);
 
-  int *zb = malloc(width * height * sizeof(int));
+  float *zb = malloc(width * height * sizeof(float));
   
   for (int x = 0; x < fb -> width; ++x){
     for (int y = 0; y < fb -> height; ++y){

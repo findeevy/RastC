@@ -87,9 +87,18 @@ Vector3f Normalize(Vector3f a){
 }
 
 //Computes for "point" in a give triangle.
-Vector3f Barycentric(Vector2i *points, Vector2i point){
-  Vector3f temp = Cross(NewVector3f(points[2].x-points[0].x, points[1].x-points[0].x, points[0].x-point.x), NewVector3f(points[2].y-points[0].y, points[1].y-points[0].y, points[0].y-point.y));
-  if (abs(temp.z) < 1){
+Vector3f Barycentric(Vector3f a, Vector3f b, Vector3f c, Vector3f point){
+
+  Vector3f arr[2];
+
+  for (int i=2; i--;){
+    arr[i].array[0] = c.array[i]-a.array[i];
+    arr[i].array[1] = b.array[i]-a.array[i];
+    arr[i].array[2] = a.array[i]-point.array[i];
+  }
+
+  Vector3f temp = Cross(arr[0], arr[1]);
+  if (abs(temp.z) < 0.01){
     return NewVector3f(-1.0, 1.0, 1.0);
   }
   return NewVector3f(1.0-(temp.x+temp.y)/temp.z, temp.y/temp.z, temp.x/temp.z);
@@ -133,7 +142,7 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
   }
 }
 
-void Triangle(Vector2i* points, FrameBuffer* fb, int* zb, FrameBufferColor color){
+void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, FrameBufferColor color){
   Vector2i bboxmin = NewVector2i(fb -> width - 1, fb -> height - 1);
   Vector2i bboxmax = NewVector2i(0, 0);
   Vector2i clamp = NewVector2i(fb -> width - 1, fb -> height - 1);
@@ -148,14 +157,14 @@ void Triangle(Vector2i* points, FrameBuffer* fb, int* zb, FrameBufferColor color
   Vector3f point;
   for (point.x=bboxmin.x; point.x<=bboxmax.x; point.x++){
     for (point.y=bboxmin.y; point.y<=bboxmax.y; point.y++){
-      Vector3f barycentric_test = Barycentric(points, point);
+      Vector3f barycentric_test = Barycentric(points[0], points[1], points[2], point);
       if (barycentric_test.x<0 || barycentric_test.y<0 || barycentric_test.z<0){
 	continue;
       }
       point.z = 0;
-      point.z += Vector3fMul(points[0].z, barycentric_test.x);
-      point.z += Vector3fMul(points[1].z, barycentric_test.y);
-      point.z += Vector3fMul(points[2].z, barycentric_test.z);
+      point.z += points[0].z * barycentric_test.x;
+      point.z += points[1].z * barycentric_test.y;
+      point.z += points[2].z * barycentric_test.z;
 
       if (zb[(int)(point.x+point.y*fb->width)] < point.z) {
         zb[(int)(point.x+point.y*fb->width)] = point.z;
@@ -269,29 +278,29 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, int* zb, FrameBufferColor color){
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
-    Vector2i coord_arr[3];
+    Vector3f coord_arr[3];
     int vert_arr[3] = {face.x, face.y, face.z};
     for (int j=0; j<3; j++) {
       Vector3f world_space = mdl -> verts[vert_arr[j]];
-      coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
+      coord_arr[j] = NewVector3f((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0, world_space.z);
     }
     Triangle(coord_arr, fb, zb, color);
   }
 }
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, int* zb, FrameBufferColor color){
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i];
-    Vector2i coord_arr[3];
+    Vector3f coord_arr[3];
     Vector3f world_arr[3];
     int vert_arr[3] = {face.x, face.y, face.z};
     for (int j=0; j<3; j++) {
       Vector3f world_space = mdl -> verts[vert_arr[j]];
       world_arr[j] = world_space;
-      coord_arr[j] = NewVector2i((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0);
+      coord_arr[j] = NewVector3f((world_space.x+mdl -> transform.x)*fb -> width/7.0, (world_space.y+mdl -> transform.y)*fb -> height/7.0, world_space.z);
     }
     Vector3f normal = Normalize(Cross(Vector3fSub(world_arr[2], world_arr[0]), Vector3fSub(world_arr[1], world_arr[0])));
     //printf("%f, %f, %f\n", normal.x, normal.y, normal.z);

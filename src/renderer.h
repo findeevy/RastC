@@ -69,7 +69,7 @@ void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
 
 void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color);
 
-void Triangle(Vector2i* points, FrameBuffer* fb, int* zb, FrameBufferColor color);
+void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, FrameBufferColor color);
 
 Model* NewModel();
 
@@ -84,7 +84,7 @@ float Magnitude(Vector3f a);
 Vector3f Normalize(Vector3f a);
 
 //Computes for "point" in a give triangle.
-Vector3f Barycentric(Vector2i *points, Vector2i point);
+Vector3f Barycentric(Vector3f a, Vector3f b, Vector3f c, Vector3f point);
 
 void FlipFramebufferVertically(FrameBuffer* fb);
 
@@ -92,8 +92,8 @@ Model* ReadOBJ(const char* file);
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, int* zb, FrameBufferColor color);
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color);
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, int* zb, FrameBufferColor color);
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color);
 
 #endif
