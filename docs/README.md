@@ -28,4 +28,5 @@ Unlit Mode\
 ![A unlit polygonal output from RastC.](unlit_out.png "Render")
 
 ## 3D Model Credit:
-[Utah Teapot 3D Model](https://users.cs.utah.edu/~dejohnso/models/teapot.html)
+[Utah Teapot 3D Model](https://users.cs.utah.edu/~dejohnso/models/teapot.html)\
+[Chicken](https://opengameart.org/content/chicken-animated)

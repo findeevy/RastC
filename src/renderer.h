@@ -8,6 +8,11 @@
 #include <string.h>
 #include <math.h>
 
+typedef struct Vector2f{
+  float x;
+  float y;
+} Vector2f;
+
 typedef struct Vector2i{
   int x;
   int y;
@@ -19,6 +24,11 @@ typedef struct Vector3i{
   int z;
 } Vector3i;
 
+typedef struct Face{
+  Vector3i fverts;
+  Vector3i ftexts;
+} Face;
+
 typedef union Vector3f{
     struct {
         float x, y, z;
@@ -28,10 +38,12 @@ typedef union Vector3f{
 
 typedef struct Model{
   Vector3f* verts;
-  Vector3i* faces;
+  Face* faces;
+  Vector2f* texts;
   Vector3f transform;
   int nverts;
   int nfaces;
+  int ntexts;
 } Model;
 
 typedef struct Light{
@@ -56,6 +68,8 @@ Light NewLight(Vector3f direction, float intensity);
 Vector3f NewVector3f(float x, float y, float z);
 
 Vector3i NewVector3i(int x, int y, int z);
+
+Vector2f NewVector2f(float x, float y);
 
 Vector2i NewVector2i(int x, int y);
 

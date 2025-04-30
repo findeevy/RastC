@@ -20,11 +20,11 @@ int main(){
     }
   }
 
-  Model *tpot = ReadOBJ("res/utah_teapot.obj");
+  Model *tpot = ReadOBJ("res/chicken.obj");
   Light light = NewLight(NewVector3f(0.0, 0.0 , -1.0), 1.0);
   tpot -> transform.x = 3.5;
   tpot -> transform.y = 2.0;
-  printf("Faces: %d\nVerts: %d\n", tpot -> nfaces, tpot -> nverts);
+  printf("Faces: %d\nVertices: %d\nTextures: %d", tpot -> nfaces, tpot -> nverts, tpot -> ntexts);
   RenderLitPolygon(tpot, light, fb, zb, green);
   free(zb);
 

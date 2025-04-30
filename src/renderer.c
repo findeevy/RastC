@@ -25,6 +25,12 @@ Vector2i NewVector2i(int x, int y){
   return vector2;
 }
 
+Vector2f NewVector2f(float x, float y){
+  Vector2f vector2;
+  vector2.x = x, vector2.y = y;
+  return vector2;
+}
+
 Light NewLight(Vector3f direction, float intensity){
   Light lit;
   lit.direction = direction;
@@ -183,8 +189,10 @@ Model* NewModel(){
   //Note that we will have dynamic memory allocation to match the amount of verts/faces, so we set them to null.
   mdl -> verts = NULL;
   mdl -> faces = NULL;
+  mdl -> texts = NULL;
   mdl -> nfaces = 0;
   mdl -> nverts = 0;
+  mdl -> ntexts = 0;
   return mdl;
   
 }
@@ -192,7 +200,7 @@ Model* NewModel(){
 Model* ReadOBJ(const char* name) {
     FILE* file = fopen(name, "r");
     if (!file) {
-      perror("Could not open OBJ file");
+      perror("Could not open OBJ file.");
       exit(1);
     }
 
@@ -207,19 +215,27 @@ Model* ReadOBJ(const char* name) {
         mdl->verts = realloc(mdl->verts, mdl->nverts * sizeof(Vector3f));
         mdl->verts[mdl->nverts - 1] = v;
       } 
+      else if (strncmp(line, "vt", 2) == 0) {
+        Vector2f t;
+        sscanf(line + 2, "%f %f", &t.x, &t.y);
+        mdl->ntexts++;
+        mdl->texts = realloc(mdl->texts, mdl->ntexts * sizeof(Vector2f));
+        mdl->texts[mdl->ntexts - 1] = t;
+      } 
       else if (strncmp(line, "f ", 2) == 0) {
-        Vector3i f = { -1, -1, -1 };
+        Face f; f.ftexts = NewVector3i(-1, -1, -1); f.fverts = NewVector3i(-1, -1, -1);
         int idx = 0;
         char* face_chunk = strtok(line + 2, " ");
         while (face_chunk != NULL && idx < 3) {
           int v;
-          if (sscanf(face_chunk, "%d/%*d/%*d", &v) == 1 ||
+          int t;
+          if (sscanf(face_chunk, "%d/%d/%*d", &v, &t) == 1 ||
             sscanf(face_chunk, "%d//%*d", &v) == 1 ||
             sscanf(face_chunk, "%d", &v) == 1) {
             switch(idx) {
-              case 0: f.x = v - 1; break;
-              case 1: f.y = v - 1; break;
-              case 2: f.z = v - 1; break;
+              case 0: f.fverts.x = v - 1; f.ftexts.x = t - 1;  break;
+              case 1: f.fverts.y = v - 1; f.ftexts.y = t - 1;  break;
+              case 2: f.fverts.z = v - 1; f.ftexts.z = t - 1; break;
             }
             idx++;
           } 
@@ -230,7 +246,7 @@ Model* ReadOBJ(const char* name) {
         }
         if (idx == 3) {
           mdl->nfaces++;
-          mdl->faces = realloc(mdl->faces, mdl->nfaces * sizeof(Vector3i));
+          mdl->faces = realloc(mdl->faces, mdl->nfaces * sizeof(Face));
           if (!mdl->faces) {
             perror("Failed to realloc faces array");
             exit(1);
@@ -260,7 +276,7 @@ void FlipFramebufferVertically(FrameBuffer* fb) {
 
 void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) { 
-    Vector3i face = mdl -> faces[i];
+    Vector3i face = mdl -> faces[i].fverts;
     int vert_arr[3] = {face.x, face.y, face.z};
     printf("%d, %d, %d\n", face.x, face.y, face.z);
     //printf("%d %d %d\n", vert_arr[0], vert_arr[1], vert_arr[2]);
@@ -280,7 +296,7 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
 
 void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
-    Vector3i face = mdl -> faces[i];
+    Vector3i face = mdl -> faces[i].fverts;
     Vector3f coord_arr[3];
     int vert_arr[3] = {face.x, face.y, face.z};
     for (int j=0; j<3; j++) {
@@ -293,7 +309,7 @@ void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor
 
 void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color){
   for (int i=0; i < mdl -> nfaces; i++) {
-    Vector3i face = mdl -> faces[i];
+    Vector3i face = mdl -> faces[i].fverts;
     Vector3f coord_arr[3];
     Vector3f world_arr[3];
     int vert_arr[3] = {face.x, face.y, face.z};
