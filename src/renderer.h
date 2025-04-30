@@ -51,14 +51,14 @@ typedef struct Light{
   float intensity;
 } Light;
 
-typedef struct FrameBufferColor{
+typedef struct Color{
   uint8_t r;
   uint8_t g;
   uint8_t b;
-} FrameBufferColor;
+} Color;
 
 typedef struct FrameBuffer{
-  FrameBufferColor** pixel;
+  Color** pixel;
   int height;
   int width;
 } FrameBuffer;
@@ -75,15 +75,15 @@ Vector2i NewVector2i(int x, int y);
 
 FrameBuffer* NewBuffer(int width, int height);
 
-FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b);
+Color NewColor(uint8_t r, uint8_t g, uint8_t b);
 
 void WriteToPPM(FrameBuffer* fb, const char *filename);
 
-void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color);
+void Set(int x, int y, FrameBuffer* fb, Color color);
 
-void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color);
+void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, Color color);
 
-void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, FrameBufferColor color);
+void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, Color color);
 
 Model* NewModel();
 
@@ -104,10 +104,10 @@ void FlipFramebufferVertically(FrameBuffer* fb);
 
 Model* ReadOBJ(const char* file);
 
-void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color);
+void RenderWireframe(Model* mdl, FrameBuffer* fb, Color color);
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color);
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, Color color);
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color);
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, Color color);
 
 #endif

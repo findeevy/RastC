@@ -39,18 +39,18 @@ Light NewLight(Vector3f direction, float intensity){
 }
 
 //Function to set RGB value in the framebuffer.
-FrameBufferColor NewColor(uint8_t r, uint8_t g, uint8_t b){
-  FrameBufferColor color;
+Color NewColor(uint8_t r, uint8_t g, uint8_t b){
+  Color color;
   color.r = r, color.g = g, color.b = b;
   return color;
 }
 
 //Function to set RGB value in the framebuffer.
 FrameBuffer* NewBuffer(int width, int height){
-  FrameBufferColor **temparr;
-  temparr = (FrameBufferColor **)malloc(width * sizeof(FrameBufferColor *));
+  Color **temparr;
+  temparr = (Color **)malloc(width * sizeof(Color *));
   for (int i = 0; i < width; ++i){
-    temparr[i] = (FrameBufferColor *)malloc(height * sizeof(FrameBufferColor));
+    temparr[i] = (Color *)malloc(height * sizeof(Color));
   }
   FrameBuffer* fb = (FrameBuffer*)malloc(sizeof(FrameBuffer));
   fb -> pixel = temparr;
@@ -60,7 +60,7 @@ FrameBuffer* NewBuffer(int width, int height){
 }
 
 //Function to set RGB value in the framebuffer.
-void Set(int x, int y, FrameBuffer* fb, FrameBufferColor color){
+void Set(int x, int y, FrameBuffer* fb, Color color){
   if(x >= 0 && y >= 0 && x < fb -> width && y < fb -> height ){
     fb -> pixel[x][y] = color;
   }
@@ -125,7 +125,7 @@ void WriteToPPM(FrameBuffer* fb, const char *filename){
   printf("File written");
 }
 
-void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor color){
+void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, Color color){
   bool direction = false; 
   if (abs(x0-x1)<abs(y0-y1)){
     Swap(&x0, &y0); 
@@ -148,7 +148,7 @@ void Line(int x0, int y0, int x1, int y1, FrameBuffer* fb, FrameBufferColor colo
   }
 }
 
-void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void Triangle(Vector3f* points, FrameBuffer* fb, float* zb, Color color){
   Vector2i bboxmin = NewVector2i(fb -> width - 1, fb -> height - 1);
   Vector2i bboxmax = NewVector2i(0, 0);
   Vector2i clamp = NewVector2i(fb -> width - 1, fb -> height - 1);
@@ -267,14 +267,14 @@ void FlipFramebufferVertically(FrameBuffer* fb) {
     for (int x = 0; x < fb->width; x++) {
         for (int y = 0; y < fb->height / 2; y++) {
             int opposite_y = fb->height - 1 - y;
-            FrameBufferColor temp = fb->pixel[x][y];
+            Color temp = fb->pixel[x][y];
             fb->pixel[x][y] = fb->pixel[x][opposite_y];
             fb->pixel[x][opposite_y] = temp;
         }
     }
 }
 
-void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
+void RenderWireframe(Model* mdl, FrameBuffer* fb, Color color){
   for (int i=0; i < mdl -> nfaces; i++) { 
     Vector3i face = mdl -> faces[i].fverts;
     int vert_arr[3] = {face.x, face.y, face.z};
@@ -294,7 +294,7 @@ void RenderWireframe(Model* mdl, FrameBuffer* fb, FrameBufferColor color){
   }
 }
 
-void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, Color color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i].fverts;
     Vector3f coord_arr[3];
@@ -307,7 +307,7 @@ void RenderUnlitPolygon(Model* mdl, FrameBuffer* fb, float* zb, FrameBufferColor
   }
 }
 
-void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, FrameBufferColor color){
+void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, Color color){
   for (int i=0; i < mdl -> nfaces; i++) {
     Vector3i face = mdl -> faces[i].fverts;
     Vector3f coord_arr[3];
@@ -323,7 +323,7 @@ void RenderLitPolygon(Model* mdl, Light light, FrameBuffer* fb, float* zb, Frame
     float intensity = Vector3fMul(normal, light.direction) * light.intensity;
     printf("%f", intensity);
     if(intensity > 0){
-      FrameBufferColor lit_color = NewColor(color.r*intensity, color.g*intensity, color.b*intensity);
+      Color lit_color = NewColor(color.r*intensity, color.g*intensity, color.b*intensity);
       Triangle(coord_arr, fb, zb, lit_color);
     }
   }
